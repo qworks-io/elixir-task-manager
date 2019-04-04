@@ -22,6 +22,17 @@ defmodule Test.TaskManager do
     assert {:ok, [%{id: 1, timeout: 100}, %{id: 2, timeout: 200}]} == results
   end
 
+  test "collect/2 returns error if no result has been collected within timeout with :only_success strategy" do
+    tasks =
+      1..3
+      |> Enum.map(fn index -> %{timeout: 1000 * index, id: index} end)
+      |> generate_async_tasks()
+
+    results = TaskManager.collect(tasks, result_type: :only_success, timeout: 500)
+
+    assert {:error, :no_results} == results
+  end
+
   test "collect/2 yields all results with no strategy" do
     tasks =
       1..3

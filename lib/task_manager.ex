@@ -9,9 +9,9 @@ defmodule TaskManager do
     result_type = Keyword.get(otps, :result_type)
     timeout = Keyword.get(otps, :timeout, 5000)
 
-    result = collect(tasks, result_type, timeout)
+    results = collect(tasks, result_type, timeout)
 
-    result
+    results
     |> post_process(result_type)
   end
 
