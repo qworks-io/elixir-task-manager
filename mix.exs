@@ -4,7 +4,7 @@ defmodule TaskManager.MixProject do
   def project do
     [
       app: :task_manager,
-      version: "0.0.1",
+      version: "0.0.2",
       elixir: "~> 1.8.1",
       elixirc_paths: elixirc_paths(Mix.env()),
       build_embedded: Mix.env() == :prod,
