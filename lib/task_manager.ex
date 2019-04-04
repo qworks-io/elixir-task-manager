@@ -6,19 +6,16 @@ defmodule TaskManager do
   require Logger
 
   def collect(tasks, otps \\ []) when is_list(tasks) and length(tasks) > 0 do
-    constraint = Keyword.get(otps, :constraint)
-    remove_error_results? = Keyword.get(otps, :remove_error_results, false)
-    unwrap? = Keyword.get(otps, :unwrap, false)
+    result_type = Keyword.get(otps, :result_type)
     timeout = Keyword.get(otps, :timeout, 5000)
 
-    result = collect(tasks, constraint, timeout)
+    result = collect(tasks, result_type, timeout)
 
     result
-    |> post_process(:remove_error_results, remove_error_results?)
-    |> post_process(:unwrap, unwrap?)
+    |> post_process(result_type)
   end
 
-  defp collect(tasks, :at_least_one_success, timeout) do
+  defp collect(tasks, :only_success, timeout) do
     results = collect_results_or_kill(tasks, timeout)
 
     has_success_results? = results |> Enum.any?(&task_resolved_ok?(&1))
@@ -29,7 +26,7 @@ defmodule TaskManager do
     end
   end
 
-  defp collect(tasks, _, timeout) do
+  defp collect(tasks, _result_type, timeout) do
     results = collect_results_or_kill(tasks, timeout)
     {:ok, results}
   end
@@ -48,15 +45,12 @@ defmodule TaskManager do
 
   defp collect_result_or_kill({_task, result}), do: result
 
-  defp post_process({:ok, results}, :remove_error_results, true) do
-    results |> Enum.filter(&task_resolved_ok?(&1))
+  defp post_process({:ok, results}, :only_success) do
+    results = results |> Enum.filter(&task_resolved_ok?(&1)) |> Enum.map(&unwrap_result(&1))
+    {:ok, results}
   end
 
-  defp post_process({:ok, results}, :unwrap, true) do
-    results |> Enum.map(&unwrap_result(&1))
-  end
-
-  defp post_process(result, _type, _value), do: result
+  defp post_process(result, _result_type), do: result
 
   defp unwrap_result({:ok, result}), do: result
 

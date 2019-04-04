@@ -6,6 +6,7 @@ defmodule TaskManager.MixProject do
       app: :task_manager,
       version: "0.0.1",
       elixir: "~> 1.8.1",
+      elixirc_paths: elixirc_paths(Mix.env()),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -45,6 +46,10 @@ defmodule TaskManager.MixProject do
   defp description do
     "Provides Elixir.Task utilities"
   end
+
+  # Specifies which paths to compile per environment.
+  defp elixirc_paths(env) when env in [:test], do: ["lib", "test/__support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
